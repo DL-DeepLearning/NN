@@ -68,6 +68,12 @@ public class Turn
 			Word currLastWord = words.get(words.size()-1);
 			currLastWord.setNext(word);
 			word.setPrev(currLastWord);
+			word.setNext(null);
+		}
+		else
+		{
+			word.setNext(null);
+			word.setNext(null);
 		}
 		
 		words.add(word);

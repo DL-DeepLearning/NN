@@ -11,7 +11,7 @@ public class Word
      /** punctuation label following this word 
       *  0 for period, 1 for none.
       * */
-     String label;
+     int label;
      
      /** previous word */
      Word prev;
@@ -23,13 +23,11 @@ public class Word
      double pauseDuration;
 
     // constructor
-    public Word(String id, String posTag, String label, Word prev, Word next, double pause)
+    public Word(String id, String posTag, int label, double pause)
     {
     	this.wordId = id;
     	this.posTag = posTag;
     	this.label = label;
-    	this.prev = prev;
-    	this.next = next;
     	this.pauseDuration = pause;
     }
      
@@ -46,7 +44,7 @@ public class Word
 		return posTag;
 	}
 
-	public String getLabel() 
+	public int getLabel() 
 	{
 		return label;
 	}
