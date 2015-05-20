@@ -41,7 +41,10 @@ public class Turn
 		return words;
 	}
 
-	
+	public Word get(int index)
+	{
+		return words.get(index);
+	}
 	
 	// setters
 	
@@ -78,5 +81,24 @@ public class Turn
 		
 		words.add(word);
 	}
-     
+	
+	
+	// other helpers
+	public boolean contains(Word w)
+	{
+		if(words.contains(w))
+			return true;
+		else return false;
+	}
+	
+	public int size()
+	{
+		return words.size();
+	}
+	
+	public int indexOf(Word word)
+	{
+		return words.indexOf(word);
+	}
+
 }
