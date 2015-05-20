@@ -1,5 +1,5 @@
 package org.bbn.sbd.training;
 
-public class Trainer {
+public class NNTrainer {
 
 }
