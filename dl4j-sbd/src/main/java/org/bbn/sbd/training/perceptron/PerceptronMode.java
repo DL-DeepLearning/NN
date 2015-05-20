@@ -1,4 +1,4 @@
-package org.bbn.sbd.training;
+package org.bbn.sbd.training.perceptron;
 
 public enum PerceptronMode {
 	
