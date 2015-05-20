@@ -41,7 +41,7 @@ public class SimplePerceptron<K>
      */
     private double feedForward(SparseVector<K> features, PerceptronMode mode)
     {
-    	// return +1 or -1 for averaged perceptron
+    	// return +1 or -1 for simple perceptron
     	double output = bias;
     	
     	for(K feature : features.keySet())
