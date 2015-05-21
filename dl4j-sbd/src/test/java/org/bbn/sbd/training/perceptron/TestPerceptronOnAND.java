@@ -1,4 +1,4 @@
-package org.dl4j.sbd;
+package org.bbn.sbd.training.perceptron;
 
 import java.util.*;
 
