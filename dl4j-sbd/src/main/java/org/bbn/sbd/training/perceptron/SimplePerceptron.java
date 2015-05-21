@@ -14,11 +14,18 @@ public class SimplePerceptron<K>
 	
 	double learningRate = 0.05;
 	
-	// constructor
+	// constructors
     public SimplePerceptron(double initialBias, double learningRate)
     {
     	this.bias = initialBias;
     	this.learningRate = learningRate;
+    	
+    	weights = new HashMap<K,Double>();
+    }
+    
+    public SimplePerceptron()
+    {
+    	weights = new HashMap<K,Double>();
     }
     
     /**
@@ -75,12 +82,16 @@ public class SimplePerceptron<K>
      * @param features
      * @param error
      */
-    private void updateWeights(SparseVector<K> features, double error)
+    private boolean updateWeights(SparseVector<K> features, double error)
     {
     	for(K feature : features.keySet())
     	{
     		weights.put(feature, getWeight(feature) + learningRate*error*features.getFeature(feature));
     	}
+    	
+    	if(error != 0)
+    		return true;
+    	else return false;
     }
 
     /**
@@ -91,11 +102,12 @@ public class SimplePerceptron<K>
      * @param features
      * @param trueLabel
      */
-    public void train(SparseVector<K> features, double trueLabel)
+    public boolean train(SparseVector<K> features, double trueLabel)
     {
     	double hyp = feedForward(features, PerceptronMode.TRAIN);
     	double error = calculateError(hyp, trueLabel);
-    	updateWeights(features,error);
+    	boolean modified = updateWeights(features,error);
+    	return modified;
     }
     
     /**
