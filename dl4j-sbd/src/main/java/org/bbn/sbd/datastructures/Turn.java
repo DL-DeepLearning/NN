@@ -66,7 +66,7 @@ public class Turn
 	
 	public void addWord(Word word)
 	{
-		if(words.size() > 0)
+		if(!words.isEmpty())
 		{
 			Word currLastWord = words.get(words.size()-1);
 			currLastWord.setNext(word);
@@ -76,7 +76,7 @@ public class Turn
 		else
 		{
 			word.setNext(null);
-			word.setNext(null);
+			word.setPrev(null);
 		}
 		
 		words.add(word);

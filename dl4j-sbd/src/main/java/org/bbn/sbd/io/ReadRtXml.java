@@ -1,11 +1,14 @@
 package org.bbn.sbd.io;
 
 import java.util.*;
+
 import org.bbn.sbd.datastructures.*;
+
 import java.io.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -15,7 +18,7 @@ public class ReadRtXml
 {
     
 	
-	public List<Turn> readIntoListOfTurns(String filepath)
+	public static List<Turn> readIntoListOfTurns(String filepath)
     {
 		List<Turn> turns = new ArrayList<Turn>(); 
 		
@@ -57,7 +60,14 @@ public class ReadRtXml
 						int label = (wordElement.getAttribute("sentence_tag")!=null && 
 								wordElement.getAttribute("sentence_tag").equals("comsn"))?0:1;
 						
-						turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause)));
+						try
+						{
+							turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause)));
+						}
+						catch(NumberFormatException e)
+						{
+							turn.addWord(new Word(wordId, posTag, label, 0));
+						}
 					} 
 				}
 				
@@ -72,7 +82,7 @@ public class ReadRtXml
     
     
     
-    public Turn readAsSingleTurn(String filepath)
+    public static Turn readAsSingleTurn(String filepath)
     {
         Turn turn = null; 
 		
@@ -117,9 +127,16 @@ public class ReadRtXml
 						String posTag = wordElement.getAttribute("pos")!=null?wordElement.getAttribute("pos"):null;
 						String pause = wordElement.getAttribute("pause")!=null?wordElement.getAttribute("pause"):null;
 						int label = (wordElement.getAttribute("sentence_tag")!=null && 
-								wordElement.getAttribute("sentence_tag").equals("comsn"))?0:1;
+								wordElement.getAttribute("sentence_tag").equals("comsn"))?1:-1;
+						try
+						{
+							turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause)));
+						}
+						catch(NumberFormatException e)
+						{
+							turn.addWord(new Word(wordId, posTag, label, 0));
+						}
 						
-						turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause)));
 					} 
 				}
 				
