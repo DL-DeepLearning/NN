@@ -6,7 +6,7 @@ import org.bbn.sbd.featureextractor.*;
 import org.bbn.sbd.datastructures.*;
 
 // 2 cmdline args.
-// first is the input RtXml file
+// first is the training RtXml file
 // second is the location to save perc model
 public class TrainPerceptronOnHub4 {
 	

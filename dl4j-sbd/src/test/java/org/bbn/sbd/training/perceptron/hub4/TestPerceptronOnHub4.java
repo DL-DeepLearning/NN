@@ -10,6 +10,9 @@ import java.util.*;
 
 public class TestPerceptronOnHub4 {
 	
+	// 2 cmdline args.
+	// first is the test RtXml file
+	// second is the location from where to load perc model
 	public static void main(String[] args)
 	{
 		try
