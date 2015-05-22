@@ -58,7 +58,7 @@ public class ReadRtXml
 						String posTag = wordElement.getAttribute("pos")!=null?wordElement.getAttribute("pos"):null;
 						String pause = wordElement.getAttribute("pause")!=null?wordElement.getAttribute("pause"):null;
 						int label = (wordElement.getAttribute("sentence_tag")!=null && 
-								wordElement.getAttribute("sentence_tag").equals("comsn"))?0:1;
+								wordElement.getAttribute("sentence_tag").equals("comsn"))?1:-1;
 						
 						try
 						{

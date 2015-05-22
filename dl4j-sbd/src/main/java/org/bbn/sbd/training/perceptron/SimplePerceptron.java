@@ -15,17 +15,21 @@ public class SimplePerceptron<K>
 	double learningRate = 0.05;
 	
 	// constructors
-    public SimplePerceptron(double initialBias, double learningRate)
+    @SuppressWarnings("unchecked")
+	public SimplePerceptron(double initialBias, double learningRate)
     {
     	this.bias = initialBias;
     	this.learningRate = learningRate;
     	
     	weights = new HashMap<K,Double>();
+    	weights.put((K)"biasFeature", bias);
     }
     
-    public SimplePerceptron()
+    @SuppressWarnings("unchecked")
+	public SimplePerceptron()
     {
     	weights = new HashMap<K,Double>();
+    	weights.put((K)"biasFeature", bias);
     }
     
     /**
@@ -46,10 +50,13 @@ public class SimplePerceptron<K>
      * @param mode
      * @return
      */
-    private double feedForward(SparseVector<K> features, PerceptronMode mode)
+    @SuppressWarnings("unchecked")
+	private double feedForward(SparseVector<K> features, PerceptronMode mode)
     {
     	// return +1 or -1 for simple perceptron
-    	double output = bias;
+    	double output;
+    	if(features.contains((K)"biasFeature")) output = 0;
+    	else output=bias;
     	
     	for(K feature : features.keySet())
     	{

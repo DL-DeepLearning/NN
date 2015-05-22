@@ -38,6 +38,7 @@ public class TrainPerceptronOnAND
 		_11inputs.put("y1", 1.0);
 		inputList.add(_11inputs);
 		
+		
 		SimplePerceptron<String> perceptron = new SimplePerceptron<String>();
 		
 		for(int iter=0;iter<10000;iter++)

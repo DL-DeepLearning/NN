@@ -9,6 +9,7 @@ public class SparseVector<K>
     public double norm = 1.0;
 	public SparseVector() {
 		this.features = new HashMap<K, Double>();
+		features.put((K)"biasFeature", 1.0);
 	}
     
     
