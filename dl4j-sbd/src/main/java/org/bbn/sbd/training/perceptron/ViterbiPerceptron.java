@@ -8,9 +8,7 @@ public class ViterbiPerceptron<K>
 {
 	
 	boolean debug = false;
-	
-	Map<String, FeatureWeight> weightPointerForAveraging = new HashMap<String, FeatureWeight>();
-	
+
 	// static inner class
 	static class PossibleState
 	{
@@ -63,8 +61,13 @@ public class ViterbiPerceptron<K>
 	}
 	// end of inner class
     
+	// perceptron weights
     Map<K,Map<Integer,FeatureWeight>> weights;
+    
+    // temp map to enable weights averaging
+    Map<String, FeatureWeight> weightPointerForAveraging = new HashMap<String, FeatureWeight>();
 	
+    // unused in current version
 	double sbBias = Math.random()*0.06;
 	double nsbBias = Math.random()*0.06;
 	
@@ -100,7 +103,7 @@ public class ViterbiPerceptron<K>
     
     
     /**
-     * 
+     * decodes and performs weight updates per turn, then weight averaging
      * @param turn
      * @return
      */
@@ -167,9 +170,9 @@ public class ViterbiPerceptron<K>
 				System.out.println("------------------------------------------------------------------");
 			}
 				
+			// new current states
 			currWordPossibleStates.add(new PossibleState(i, -1, 0));
 			currWordPossibleStates.add(new PossibleState(i, 1, 0));
-			//currWordPossibleStates.add(new PossibleState(i, -1, 0));
 			
 			boolean firstcurrstate = true;
 			for(PossibleState currWordPossibleState : currWordPossibleStates)
@@ -237,7 +240,8 @@ public class ViterbiPerceptron<K>
 			   if(debug)
 			   {
 				   System.out.println("------------------------------------------------------------------");
-				   System.out.println("curr state: " + state + " obs score: " + featuresScore + " prev: " + (previous==null?"null":previous.getLabel()));
+				   System.out.println("curr state: " + state + " obs score: " + featuresScore + " prev: " 
+				          + (previous==null?"null":previous.getLabel()));
 				   System.out.println("------------------------------------------------------------------");
 			   }
 			   
@@ -263,6 +267,14 @@ public class ViterbiPerceptron<K>
 		return hypothesis;
 	}
 	
+	/**
+	 * non-averaged or averaged deoending on
+	 * whether training or testing
+	 * @param wordfeatures
+	 * @param label
+	 * @param mode
+	 * @return
+	 */
 	private double getFeaturesScore(SparseVector<K> wordfeatures, int label, PerceptronMode mode) 
 	{
 		double score = 0.0;
@@ -290,7 +302,8 @@ public class ViterbiPerceptron<K>
 	}
 
 	/**
-	 * 
+	 * increment feature weight for true label by 1,
+	 * decrement feature weight for hypothesis by 1
 	 * @param turn
 	 * @param truelabels
 	 * @return
@@ -365,7 +378,8 @@ public class ViterbiPerceptron<K>
 	
 	
 	/**
-	 * 
+	 * Get all hypothesized labels for this turn. 
+	 * (1 for SB, -1 for NSB)
 	 */
 	private List<Integer> backtrace(PossibleState last)
 	{

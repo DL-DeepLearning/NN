@@ -11,8 +11,9 @@ import org.bbn.sbd.scoring.Score;
 import org.bbn.sbd.training.perceptron.PerceptronMode;
 import org.bbn.sbd.training.perceptron.ViterbiPerceptron;
 
-// arg[0] = training xml file
-// arg[1] = test xml file
+// arg[0] = training xml file (/nfs/raid62/u15/research/SBD/bn_train.xml)
+// arg[1] = test xml file  (/nfs/raid62/u15/research/SBD/bn_test.xml)
+// args[2] = window size (5 or 7)
 public class ViterbiPercOnHub4 
 {
       public static void main(String[] args)
@@ -58,7 +59,7 @@ public class ViterbiPercOnHub4
   			    for(Turn turn : test_turns)
   			    {
   				   turnindex++;
-  				   for(int i=0; i<turn.getWords().size(); i++)
+  				   for(int i=0; i<turn.getWords().size()-1; i++)
   				   {
   				      truelabels.add(turn.get(i).getLabel());
   				   }
@@ -66,7 +67,9 @@ public class ViterbiPercOnHub4
   				   //System.out.println("decoding turn number " + turnindex);
   				   List<SparseVector<String>> features = featex.getSparseFeatureVector(turn, window);
 			       hyp.addAll(perceptron.decode(turn, features, PerceptronMode.TEST));
-			       //hyp.remove(hyp.size()-1);
+			       
+			       // don't score on turn-ending
+			       hyp.remove(hyp.size()-1);
   			    }
   			
   			
