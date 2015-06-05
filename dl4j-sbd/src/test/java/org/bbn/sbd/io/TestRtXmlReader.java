@@ -11,18 +11,19 @@ public class TestRtXmlReader {
 	{
 		try
 		{
-			//Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
-			List<Turn> turns = ReadRtXml.readIntoListOfTurns(args[0]);
+			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
+			//List<Turn> turns = ReadRtXml.readIntoListOfTurns(args[0]);
 			
-			for(Turn t : turns)
-			{
-				System.out.println("Turn ID: " + t.getId());
-				System.out.println("Turn source: " + t.getFile());
-				System.out.println("Turn start: " + t.getStart());
-				System.out.println("Turn duration: " + t.getDuration());
-				for(Word word: t.getWords())
+			//for(Turn t : turns)
+			//{
+				System.out.println("Turn ID: " + turn.getId());
+				System.out.println("Turn source: " + turn.getFile());
+				System.out.println("Turn start: " + turn.getStart());
+				System.out.println("Turn duration: " + turn.getDuration());
+				for(Word word: turn.getWords())
 				{
 					System.out.println("Word Id: " + word.getWordId() + "  label: " + word.getLabel() + " pause: " + word.getPauseDuration() 
+							+ " pausefiller: " + word.getPauseFiller() + " chop boundary: " + word.getChopBoundary()
 							/*+ "  prev word: " + word.getPrev()!=null?word.getPrev().getWordId():"" + " next word: " 
 					+ (word.getNext()==null?"null":"notnull")*/);
 					if(word.getPrev()!=null)
@@ -43,7 +44,7 @@ public class TestRtXmlReader {
 						System.out.println("next word: null");
 					}
 				}
-			}
+			//}
 			
 			/*System.out.println("Turn ID: " + turn.getId());
 			System.out.println("Turn source: " + turn.getFile());

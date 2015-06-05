@@ -1,6 +1,6 @@
 package org.bbn.sbd.training.perceptron.hub4;
 
-import org.bbn.sbd.scoring.PRF;
+import org.bbn.sbd.scoring.Score;
 import org.bbn.sbd.training.perceptron.SimplePerceptron;
 import org.bbn.sbd.io.*;
 import org.bbn.sbd.featureextractor.*;
@@ -18,8 +18,8 @@ public class TestPerceptronOnHub4 {
 		try
 		{
 			SimplePerceptron<String> perceptron = new SimplePerceptron<String>();
-			List<Double> truelabels = new ArrayList<Double>();
-			List<Double> hyp = new ArrayList<Double>();
+			List<Integer> truelabels = new ArrayList<Integer>();
+			List<Integer> hyp = new ArrayList<Integer>();
 			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
 			FeatureExtractor featex = new FeatureExtractor();
 			
@@ -27,12 +27,12 @@ public class TestPerceptronOnHub4 {
 			
 			for(Word word : turn.getWords())
 			{
-				truelabels.add((double) word.getLabel());
+				truelabels.add(word.getLabel());
 				SparseVector<String> features = featex.getSparseFeatureVector(word, turn, 7);
 				hyp.add(perceptron.simpleDecode(features));
 			}
 			
-			PRF.score(hyp, truelabels);
+			Score.score(hyp, truelabels);
 	
 		}
 		catch(Exception e)

@@ -15,21 +15,18 @@ public class SimplePerceptron<K>
 	double learningRate = 0.05;
 	
 	// constructors
-    @SuppressWarnings("unchecked")
 	public SimplePerceptron(double initialBias, double learningRate)
     {
     	this.bias = initialBias;
     	this.learningRate = learningRate;
     	
     	weights = new HashMap<K,Double>();
-    	weights.put((K)"biasFeature", bias);
+    	
     }
     
-    @SuppressWarnings("unchecked")
 	public SimplePerceptron()
     {
     	weights = new HashMap<K,Double>();
-    	weights.put((K)"biasFeature", bias);
     }
     
     /**
@@ -50,13 +47,10 @@ public class SimplePerceptron<K>
      * @param mode
      * @return
      */
-    @SuppressWarnings("unchecked")
-	private double feedForward(SparseVector<K> features, PerceptronMode mode)
+	private int feedForward(SparseVector<K> features, PerceptronMode mode)
     {
     	// return +1 or -1 for simple perceptron
-    	double output;
-    	if(features.contains((K)"biasFeature")) output = 0;
-    	else output=bias;
+    	double output = bias;
     	
     	for(K feature : features.keySet())
     	{
@@ -67,9 +61,10 @@ public class SimplePerceptron<K>
     		}
     		output += features.getFeature(feature)*getWeight(feature);
     	}
-    	
-    	if(output >= 0) return 1;
-    	else return -1;
+
+        if(output >= 0) return 1;
+        else return -1;
+
     }
     
     /**
@@ -95,6 +90,8 @@ public class SimplePerceptron<K>
     	{
     		weights.put(feature, getWeight(feature) + learningRate*error*features.getFeature(feature));
     	}
+    	
+    	bias = bias + learningRate*error;
     	
     	if(error != 0)
     		return true;
@@ -122,7 +119,7 @@ public class SimplePerceptron<K>
      * @param features
      * @return
      */
-    public double simpleDecode(SparseVector<K> features)
+    public int simpleDecode(SparseVector<K> features)
     {
     	return feedForward(features, PerceptronMode.TEST);
     }
@@ -136,10 +133,18 @@ public class SimplePerceptron<K>
      */
     private String weightsToString() 
     {
+    	System.out.println("Total number of entries: " + weights.size());
+    	
         String s = "";
+        int i=0;
         for (Object key: weights.keySet()) {
+        	i++;
+        	System.out.println("weight number " + i);
             s += key + "\t" + weights.get(key) + "\n";
         }
+        
+        // save final bias value
+        s += "0_bias_0" + "\t" + bias + "\n";
         return s;
     }
     
@@ -175,8 +180,12 @@ public class SimplePerceptron<K>
     		String line;
     		while((line = br.readLine()) != null)
     		{
+    			
     			String[] temp = line.split("\t");
-    			weights.put((K)temp[0], Double.parseDouble(temp[1]));
+    			if(temp[0].equals("0_bias_0"))
+    				bias = Double.parseDouble(temp[1]);
+    			else 
+    				weights.put((K)temp[0], Double.parseDouble(temp[1]));
     		}
     		br.close();
     	}

@@ -1,5 +1,6 @@
 package org.bbn.sbd.datastructures;
 
+
 public class Word 
 {
 	 /** The string value */
@@ -8,10 +9,9 @@ public class Word
      /** the POS tag */
      String posTag;
      
-     /** punctuation label following this word 
-      *  0 for period, 1 for none.
-      * */
+     /** Label associated with the word*/
      int label;
+
      
      /** previous word */
      Word prev;
@@ -19,16 +19,28 @@ public class Word
      /** next word */
      Word next;
      
+     
      /** pause duration */
      double pauseDuration;
+     
+     /** pause filler after this word? */
+     boolean pauseFiller = false;
+     
+     /** chop boundary after this word? */
+     boolean chopBoundary = false;
+     
+     
 
     // constructor
-    public Word(String id, String posTag, int label, double pause)
-    {
+    public Word(String id, String posTag, int label, double pause, boolean pausefiller, boolean chopboundary)
+    {	
     	this.wordId = id;
     	this.posTag = posTag;
+    	
     	this.label = label;
     	this.pauseDuration = pause;
+    	this.pauseFiller = pausefiller;
+    	this.chopBoundary = chopboundary;
     }
      
    
@@ -44,7 +56,8 @@ public class Word
 		return posTag;
 	}
 
-	public int getLabel() 
+	
+	public int getLabel()
 	{
 		return label;
 	}
@@ -64,7 +77,17 @@ public class Word
 		return pauseDuration;
 	}
 
-
+    public boolean getPauseFiller()
+    {
+    	return this.pauseFiller;
+    }
+    
+    public boolean getChopBoundary()
+    {
+    	return this.chopBoundary;
+    }
+    
+	
     // setters
 	public void setPrev(Word prev) {
 		this.prev = prev;
@@ -76,5 +99,21 @@ public class Word
 		this.next = next;
 	}
 	
+	
+	public void setLabel(int label)
+	{
+		this.label =label;
+	}
+	
+	
+	public void setPauseFiller(boolean pausefiller)
+	{
+		this.pauseFiller = pausefiller;
+	}
+	
+	public void setChopBoundary(boolean boundary)
+	{
+		this.chopBoundary = boundary;
+	}
 	
 }

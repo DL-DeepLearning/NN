@@ -2,10 +2,9 @@ package org.bbn.sbd.scoring;
 
 import java.util.List;
 
-public class PRF {
+public class Score {
 
-	@SuppressWarnings("unused")
-	public static void score(List<Double> hyp, List<Double> truelabels) 
+	public static double score(List<Integer> hyp, List<Integer> truelabels) 
 	{
 		if(hyp.size() != truelabels.size())
 		{
@@ -16,12 +15,13 @@ public class PRF {
 		double precision = 0.0;
 		double recall = 0.0;
 		double fscore = 0.0;
+		double ser = 0.0;
 		
 		double tp=0, fp=0, tn=0, fn=0;
 		
 		for(int i=0; i< hyp.size(); i++)
 		{
-			System.out.println("hyp: " + hyp.get(i) + " true: " + truelabels.get(i));
+			//System.out.println("hyp: " + hyp.get(i) + " true: " + truelabels.get(i));
 			
 			if(hyp.get(i).compareTo(truelabels.get(i)) == 0)
 			{
@@ -29,7 +29,7 @@ public class PRF {
 				if(hyp.get(i) > 0)
 				{
 					tp++;
-					System.out.println("incrementing tp");
+					//System.out.println("incrementing tp");
 				}
 					
 				else tn++;
@@ -62,6 +62,22 @@ public class PRF {
 			System.out.println("F-measure is: " + fscore);
 		}	
 		else System.out.println("F-measure is NaN");
+		
+		if(tp+fn != 0)
+		{
+			ser = ((fp+fn)/(tp+fn))*100;
+			System.out.println("Ins: " + fp/(tp+fn));
+			System.out.println("Del: " + fn/(tp+fn));
+			System.out.println("SER: " + ser);
+		}
+		else System.out.println("SER is NaN");
+		
+		System.out.println("TP: " + tp);
+		System.out.println("TN: " + tn);
+		System.out.println("FP: " + fp);
+		System.out.println("FN: " + fn);
+		
+		return ser;
 	}
 
 }

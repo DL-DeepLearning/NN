@@ -14,11 +14,19 @@ public class TrainPerceptronOnHub4 {
 	{
 		try
 		{
-			SimplePerceptron<String> perceptron = new SimplePerceptron<String>();	    
+			SimplePerceptron<String> perceptron = new SimplePerceptron<String>();	 
+			
+			System.out.println("before read");
 			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
+			System.out.println("after read");
+			
 			FeatureExtractor featex = new FeatureExtractor();
+			
+			int wordnumber = 0;
 			for(Word word : turn.getWords())
 			{
+				wordnumber++;
+				System.out.println("Training instance number " + wordnumber);
 				int truelabel = word.getLabel();
 				SparseVector<String> features = featex.getSparseFeatureVector(word, turn, 7);
 				perceptron.train(features, truelabel);

@@ -39,11 +39,11 @@ public class ReadRtXml
 					Element turnElement = (Element) turnList.item(i);
 				    
 					Turn turn = new Turn(Integer.toString(i));
-					if(turnElement.getAttribute("file")!=null)
+					if(turnElement.getAttribute("file").length()>0)
 						turn.setFile(turnElement.getAttribute("file"));
-					if(turnElement.getAttribute("start")!=null)
+					if(turnElement.getAttribute("start").length()>0)
 						turn.setStart(Double.parseDouble(turnElement.getAttribute("start")));
-					if(turnElement.getAttribute("duration")!=null)
+					if(turnElement.getAttribute("duration").length()>0)
 						turn.setDuration(Double.parseDouble(turnElement.getAttribute("duration")));
 					turns.add(turn);
 					
@@ -54,19 +54,34 @@ public class ReadRtXml
 						Node wordNode = wordList.item(j);
 						Element wordElement = (Element)wordNode;
 						
-						String wordId = wordElement.getAttribute("id")!=null?wordElement.getAttribute("id"):null;
-						String posTag = wordElement.getAttribute("pos")!=null?wordElement.getAttribute("pos"):null;
-						String pause = wordElement.getAttribute("pause")!=null?wordElement.getAttribute("pause"):null;
-						int label = (wordElement.getAttribute("sentence_tag")!=null && 
+						String wordId = wordElement.getAttribute("id").length()>0?wordElement.getAttribute("id").trim().replaceAll("\\s+", " ")/*.replaceAll("\\d+","<num>")*/:null;
+						String posTag = wordElement.getAttribute("pos").length()>0?wordElement.getAttribute("pos"):null;
+						
+						boolean pausefiller = wordElement.getAttribute("pausefiller").length()>0?true:false;
+						boolean chopboundary = wordElement.getAttribute("chop_boundary").length()>0?true:false;
+						
+						// cheating. Set pause at end of turn to super high
+						String pause;
+						//if(j==wordList.getLength()-1)
+						//{
+							//pause = "75";
+						//}
+						//else
+						//{
+							pause = wordElement.getAttribute("pause")!=null?wordElement.getAttribute("pause"):"0";
+						//}
+						
+						
+						int label = (wordElement.getAttribute("sentence_tag")!="" && 
 								wordElement.getAttribute("sentence_tag").equals("comsn"))?1:-1;
 						
 						try
 						{
-							turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause)));
+							turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause), pausefiller, chopboundary));
 						}
 						catch(NumberFormatException e)
 						{
-							turn.addWord(new Word(wordId, posTag, label, 0));
+							turn.addWord(new Word(wordId, posTag, label, 0, pausefiller, chopboundary));
 						}
 					} 
 				}
@@ -101,19 +116,21 @@ public class ReadRtXml
 				double duration = 0;
 				
 				NodeList turnList = doc.getElementsByTagName("turn");
+                System.out.println("Num of turns: " + turnList.getLength());
 				for(int i=0; i< turnList.getLength(); i++)
 				{
+					System.out.println("Reading turn " + (i+1));
 					Element turnElement = (Element) turnList.item(i);
 				    
 					if(i==0)
 					{
-						if(turnElement.getAttribute("file")!=null)
+						if(turnElement.getAttribute("file").length()>0)
 							turn.setFile(turnElement.getAttribute("file"));
-						if(turnElement.getAttribute("start")!=null)
+						if(turnElement.getAttribute("start").length()>0)
 							turn.setFile(turnElement.getAttribute("start"));
 					}
 					
-					if(turnElement.getAttribute("duration")!=null)
+					if(turnElement.getAttribute("duration").length()>0)
 						duration += Double.parseDouble(turnElement.getAttribute("duration"));
 					
 					NodeList wordList = turnElement.getElementsByTagName("word");
@@ -123,18 +140,33 @@ public class ReadRtXml
 						Node wordNode = wordList.item(j);
 						Element wordElement = (Element)wordNode;
 						
-						String wordId = wordElement.getAttribute("id")!=null?wordElement.getAttribute("id"):null;
-						String posTag = wordElement.getAttribute("pos")!=null?wordElement.getAttribute("pos"):null;
-						String pause = wordElement.getAttribute("pause")!=null?wordElement.getAttribute("pause"):null;
-						int label = (wordElement.getAttribute("sentence_tag")!=null && 
+						String wordId = wordElement.getAttribute("id").length()>0?wordElement.getAttribute("id").trim().replaceAll("\\s+", " ")/*.replaceAll("\\d+","<num>")*/:null;
+						String posTag = wordElement.getAttribute("pos").length()>0?wordElement.getAttribute("pos"):null;
+						//System.out.println("pausefiller: " + wordElement.getAttribute("pausefiller"));
+						boolean pausefiller = wordElement.getAttribute("pausefiller").length()>0?true:false;
+						boolean chopboundary = wordElement.getAttribute("chop_boundary").length()>0?true:false;
+						
+						// cheating. Set pause at end of turn to super high
+						String pause;
+						//if(j==wordList.getLength()-1)
+						//{
+						//	pause = "75";
+						//}
+						//else
+						//{
+							pause = wordElement.getAttribute("pause").length()>0?wordElement.getAttribute("pause"):"0";
+						//}
+						
+						
+						int label = (wordElement.getAttribute("sentence_tag").length()>0 && 
 								wordElement.getAttribute("sentence_tag").equals("comsn"))?1:-1;
 						try
 						{
-							turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause)));
+							turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause), pausefiller, chopboundary));
 						}
 						catch(NumberFormatException e)
 						{
-							turn.addWord(new Word(wordId, posTag, label, 0));
+							turn.addWord(new Word(wordId, posTag, label, 0, pausefiller, chopboundary));
 						}
 						
 					} 

@@ -2,7 +2,7 @@ package org.bbn.sbd.training.perceptron;
 
 import java.util.*;
 
-import org.bbn.sbd.scoring.PRF;
+import org.bbn.sbd.scoring.Score;
 import org.bbn.sbd.training.perceptron.SimplePerceptron;
 import org.bbn.sbd.datastructures.*;
 
@@ -38,12 +38,12 @@ public class TestPerceptronOnAND
     		_11inputs.put("y1", 1.0);
     		inputList.add(_11inputs);
     		
-    		List<Double> truelabels = Arrays.asList(new Double[]{-1.0,-1.0,-1.0,+1.0});
+    		List<Integer> truelabels = Arrays.asList(new Integer[]{-1,-1,-1,+1});
     		
     		SimplePerceptron<String> perceptron = new SimplePerceptron<String>();
     		perceptron.loadModel(args[0]);
     		
-    		List<Double> hyp = new ArrayList<Double>();
+    		List<Integer> hyp = new ArrayList<Integer>();
     		for(int i=0;i<inputList.size();i++)
     		{
     			SparseVector<String> features = new SparseVector<String>();
@@ -52,7 +52,7 @@ public class TestPerceptronOnAND
     			hyp.add(perceptron.simpleDecode(features));
     		}
     		
-    		PRF.score(hyp, truelabels);
+    		Score.score(hyp, truelabels);
     	}
     	catch(Exception e)
     	{

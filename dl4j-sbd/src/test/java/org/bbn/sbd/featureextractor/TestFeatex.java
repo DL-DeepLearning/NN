@@ -6,7 +6,7 @@ import org.bbn.sbd.datastructures.SparseVector;
 import org.bbn.sbd.datastructures.Turn;
 import org.bbn.sbd.io.ReadRtXml;
 
-public class TestUnigramFeatex {
+public class TestFeatex {
 	
 	public static void main(String[] args)
 	{
