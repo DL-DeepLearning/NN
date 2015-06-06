@@ -111,6 +111,8 @@ public class ViterbiPerceptron<K>
     {
     	List<Integer> truelabels = getTrueLabels(turn);    
     	List<Integer> hypothesis = decode(turn, wordFeatures, PerceptronMode.TRAIN);
+    	
+    	// no weight update based on last word in turn
     	for(int i=0; i<turn.getWords().size()-1; i++)
     	{
     		if((truelabels.get(i) - hypothesis.get(i)) != 0)
@@ -155,8 +157,6 @@ public class ViterbiPerceptron<K>
 	public List<Integer> decode(Turn turn, List<SparseVector<K>> features, PerceptronMode mode)
 	{
 		List<Integer> hypothesis = new ArrayList<Integer>();
-		
-		// TODO
 		List<PossibleState> prevWordPossibleStates = null;
 		List<PossibleState> currWordPossibleStates = new ArrayList<PossibleState>();
 		
@@ -247,10 +247,10 @@ public class ViterbiPerceptron<K>
 			   
 			   maxscore += featuresScore;
 
-				currWordPossibleState.setScore(maxscore);
-				currWordPossibleState.setPrevious(previous);
+			   currWordPossibleState.setScore(maxscore);
+			   currWordPossibleState.setPrevious(previous);
 				
-				if(firstcurrstate)
+			   if(firstcurrstate)
 					firstcurrstate=false;
 			}
 			

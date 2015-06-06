@@ -29,6 +29,12 @@ public class ViterbiPercOnHub4
   			if(args.length>2)
   				window = Integer.parseInt(args[2]);
   			
+  			if(window !=5 && window != 7)
+  			{
+  				System.out.println("Invalid window size! Only one of 5 or 7 allowed.");
+  				System.exit(1);
+  			}
+  			
   			List<Turn> training_turns = ReadRtXml.readIntoListOfTurns(args[0]);
   			List<Turn> test_turns = ReadRtXml.readIntoListOfTurns(args[1]);
   			
