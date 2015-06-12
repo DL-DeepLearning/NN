@@ -15,54 +15,69 @@ import org.bbn.sbd.training.perceptron.SimplePerceptron;
 // arg[1] = test xml file
 public class TrainAndTestPercOnHub4 {
 	
+	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
 		try
 		{
             SimplePerceptron<String> perceptron = new SimplePerceptron<String>();	 
 			
-			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
+			Turn training_turn = ReadRtXml.readAsSingleTurn(args[0], false);
+			Turn val_turn = ReadRtXml.readAsSingleTurn(args[1], false);
 			FeatureExtractor featex = new FeatureExtractor();
 			
-			int wordnumber = 0;
-			for(Word word : turn.getWords())
+			double prevSER = 1000.0;
+			for(int iter=0; iter<2; iter++)
 			{
-				wordnumber++;
-				System.out.println("Training instance number " + wordnumber);
-				int truelabel = word.getLabel();
-				SparseVector<String> features = featex.getSparseFeatureVector(word, turn, 5);
-				perceptron.train(features, truelabel);
+				System.out.println("Iteration: " + (iter+1));
+				for(int i=0; i<training_turn.getWords().size();i++)
+				{
+					Word word = training_turn.getWords().get(i);
+					int truelabel = word.getLabel();
+					SparseVector<String> features = featex.getSparseFeatureVector(word, training_turn, 7);
+					perceptron.train(features, truelabel);
+				}
+
+				featex = new FeatureExtractor();
+				List<Integer> truelabels = new ArrayList<Integer>();
+				List<Integer> hyp = new ArrayList<Integer>();
+				
+				for(int i=0; i<val_turn.getWords().size();i++)
+				{
+					Word word = val_turn.getWords().get(i);
+					truelabels.add(word.getLabel());
+					SparseVector<String> features = featex.getSparseFeatureVector(word, val_turn, 7);
+					int prediction = perceptron.simpleDecode(features);
+					hyp.add(prediction);
+					word.setLabel(prediction);
+				}
+				
+				double SER = Score.score(hyp, truelabels);
+  			    /*if(SER > prevSER)
+  			    {
+  			    	System.out.println("Best SER = " + prevSER + " on iteration " + iter);
+  			    	break;
+  			    }
+  			    prevSER = SER;*/
+						
 			}
-			
-			
-			turn = ReadRtXml.readAsSingleTurn(args[1]);
+			System.out.println("=======================================================");
+			System.out.println("Now decoding on test..");
+			System.out.println("=======================================================");
 			featex = new FeatureExtractor();
 			List<Integer> truelabels = new ArrayList<Integer>();
 			List<Integer> hyp = new ArrayList<Integer>();
-			
-			for(Word word : turn.getWords())
+			Turn test_turn = ReadRtXml.readAsSingleTurn(args[2], false);
+			for(int i=0; i<test_turn.getWords().size();i++)
 			{
+				Word word = test_turn.getWords().get(i);
 				truelabels.add(word.getLabel());
-				SparseVector<String> features = featex.getSparseFeatureVector(word, turn, 5);
+				SparseVector<String> features = featex.getSparseFeatureVector(word, test_turn, 7);
 				int prediction = perceptron.simpleDecode(features);
 				hyp.add(prediction);
 				word.setLabel(prediction);
 			}
-			
-			
-			/** hardcoded filepath here */
-			/*BufferedWriter bw = new BufferedWriter(new FileWriter("/nfs/raid62/u15/research/SBD/dl4j/deeplearning4j/dl4j-sbd/scores.txt", true));
-			bw.write("score\ttruelabel\n");
-			for(int i=0; i< truelabels.size(); i++)
-			{
-				bw.write(hyp.get(i) + "\t" + truelabels.get(i) + "\n");
-				bw.flush();
-			}
-			bw.close();*/
-			
-			
-			Score.score(hyp, truelabels);
-			
+			double SER = Score.score(hyp, truelabels);
 		}
 		catch(Exception e)
 		{

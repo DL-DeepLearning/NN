@@ -97,7 +97,7 @@ public class ReadRtXml
     
     
     
-    public static Turn readAsSingleTurn(String filepath)
+    public static Turn readAsSingleTurn(String filepath, boolean includeLastWord)
     {
         Turn turn = null; 
 		
@@ -119,7 +119,7 @@ public class ReadRtXml
                 System.out.println("Num of turns: " + turnList.getLength());
 				for(int i=0; i< turnList.getLength(); i++)
 				{
-					System.out.println("Reading turn " + (i+1));
+					//System.out.println("Reading turn " + (i+1));
 					Element turnElement = (Element) turnList.item(i);
 				    
 					if(i==0)
@@ -161,12 +161,24 @@ public class ReadRtXml
 						int label = (wordElement.getAttribute("sentence_tag").length()>0 && 
 								wordElement.getAttribute("sentence_tag").equals("comsn"))?1:-1;
 						try
-						{
-							turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause), pausefiller, chopboundary));
+						{    
+							 if(j==wordList.getLength()-1)
+							 {
+								 if(includeLastWord)
+									 turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause), pausefiller, chopboundary));
+							 }
+							 else
+								 turn.addWord(new Word(wordId, posTag, label, Double.parseDouble(pause), pausefiller, chopboundary));
 						}
 						catch(NumberFormatException e)
 						{
-							turn.addWord(new Word(wordId, posTag, label, 0, pausefiller, chopboundary));
+							if(j==wordList.getLength()-1)
+							{
+								 if(includeLastWord)
+									 turn.addWord(new Word(wordId, posTag, label, 0, pausefiller, chopboundary));
+							}
+						    else 
+							   turn.addWord(new Word(wordId, posTag, label, 0, pausefiller, chopboundary));
 						}
 						
 					} 

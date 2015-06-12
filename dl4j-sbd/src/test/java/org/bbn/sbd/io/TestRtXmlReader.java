@@ -11,7 +11,7 @@ public class TestRtXmlReader {
 	{
 		try
 		{
-			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
+			Turn turn = ReadRtXml.readAsSingleTurn(args[0], true);
 			//List<Turn> turns = ReadRtXml.readIntoListOfTurns(args[0]);
 			
 			//for(Turn t : turns)

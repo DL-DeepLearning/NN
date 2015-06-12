@@ -17,7 +17,7 @@ public class TrainPerceptronOnHub4 {
 			SimplePerceptron<String> perceptron = new SimplePerceptron<String>();	 
 			
 			System.out.println("before read");
-			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
+			Turn turn = ReadRtXml.readAsSingleTurn(args[0], false);
 			System.out.println("after read");
 			
 			FeatureExtractor featex = new FeatureExtractor();

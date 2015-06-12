@@ -1,0 +1,16 @@
+<!-- Network architecture configuration file -->
+<networkArchitecture>
+	<!-- Number of <layer> tags should be equal to the value specified above -->
+	<layers>
+		<hidden>
+			<numNodes>4</numNodes>
+			<transfer>sigmoid</transfer>
+		</hidden>
+		<output>
+			<numNodes>2</numNodes>
+			<nodeId>sbd</nodeId>
+			<nodeId>nsbd</nodeId>
+			<transfer>sigmoid</transfer>
+		</output>
+	</layers>
+</networkArchitecture>

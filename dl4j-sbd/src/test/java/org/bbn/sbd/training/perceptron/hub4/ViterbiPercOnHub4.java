@@ -19,15 +19,15 @@ public class ViterbiPercOnHub4
       public static void main(String[] args)
       {
     	  try
-  		{
+  		  {
             ViterbiPerceptron<String> perceptron = new ViterbiPerceptron<String>();	 
   			FeatureExtractor featex = new FeatureExtractor();
   			
   			int turnindex;
   			double prevSER = 1000.0;
   			int window = 7;
-  			if(args.length>2)
-  				window = Integer.parseInt(args[2]);
+  			if(args.length>3)
+  				window = Integer.parseInt(args[3]);
   			
   			if(window !=5 && window != 7)
   			{
@@ -36,11 +36,10 @@ public class ViterbiPercOnHub4
   			}
   			
   			List<Turn> training_turns = ReadRtXml.readIntoListOfTurns(args[0]);
-  			List<Turn> test_turns = ReadRtXml.readIntoListOfTurns(args[1]);
+  			List<Turn> val_turns = ReadRtXml.readIntoListOfTurns(args[1]);
   			
   			for(int iter=0; iter<10;iter++)
   			{
-  				
   				System.out.println("Iteration number: " + (iter+1));
   				turnindex = 0;
   	  			for(Turn turn : training_turns)
@@ -62,7 +61,7 @@ public class ViterbiPercOnHub4
   			    List<Integer> truelabels = new ArrayList<Integer>();
   			    List<Integer> hyp = new ArrayList<Integer>();
   			    turnindex=0;
-  			    for(Turn turn : test_turns)
+  			    for(Turn turn : val_turns)
   			    {
   				   turnindex++;
   				   for(int i=0; i<turn.getWords().size()-1; i++)
@@ -88,6 +87,28 @@ public class ViterbiPercOnHub4
   			    prevSER = SER;
   	  			
   			}
+  			
+  			System.out.println("=======================================================");
+			System.out.println("Now decoding on test..");
+			System.out.println("=======================================================");
+			List<Integer> truelabels = new ArrayList<Integer>();
+			List<Integer> hyp = new ArrayList<Integer>();
+			List<Turn> test_turns = ReadRtXml.readIntoListOfTurns(args[2]);
+			turnindex=0;
+			for(Turn turn : test_turns)
+			 {
+				   turnindex++;
+				   for(int i=0; i<turn.getWords().size()-1; i++)
+				   {
+				      truelabels.add(turn.get(i).getLabel());
+				   }
+				   List<SparseVector<String>> features = featex.getSparseFeatureVector(turn, window);
+		           hyp.addAll(perceptron.decode(turn, features, PerceptronMode.TEST));
+		       
+		           // don't score on turn-ending
+		           hyp.remove(hyp.size()-1);
+			 }
+            Score.score(hyp, truelabels);
   			
   			
   			

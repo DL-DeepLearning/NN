@@ -20,7 +20,7 @@ public class TestPerceptronOnHub4 {
 			SimplePerceptron<String> perceptron = new SimplePerceptron<String>();
 			List<Integer> truelabels = new ArrayList<Integer>();
 			List<Integer> hyp = new ArrayList<Integer>();
-			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
+			Turn turn = ReadRtXml.readAsSingleTurn(args[0], false);
 			FeatureExtractor featex = new FeatureExtractor();
 			
 			perceptron.loadModel(args[1]);

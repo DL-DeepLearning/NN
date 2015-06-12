@@ -12,7 +12,7 @@ public class TestFeatex {
 	{
 		try
 		{
-			Turn turn = ReadRtXml.readAsSingleTurn(args[0]);
+			Turn turn = ReadRtXml.readAsSingleTurn(args[0], false);
 			
 			FeatureExtractor featextractor = new FeatureExtractor();
 			List<SparseVector<String>> vectors = featextractor.getSparseFeatureVector(turn, 7);

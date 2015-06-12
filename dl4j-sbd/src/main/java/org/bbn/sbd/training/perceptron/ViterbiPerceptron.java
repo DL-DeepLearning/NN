@@ -8,58 +8,6 @@ public class ViterbiPerceptron<K>
 {
 	
 	boolean debug = false;
-
-	// static inner class
-	static class PossibleState
-	{
-		int wordIndex;
-		int currlabel;
-		double score;
-		
-		PossibleState prev;
-		
-		// constructor
-		public PossibleState(int wordIndex, int currlabel, double score)
-		{
-			this.wordIndex = wordIndex;
-			this.currlabel = currlabel;
-			this.score = score;
-			prev = null;
-		}
-		
-		// getters
-		public int getWordIndex()
-		{
-			return wordIndex;
-		}
-		
-		public double getScore()
-		{
-			return score;
-		}
-		
-		public int getLabel()
-		{
-			return currlabel;
-		}
-		
-		public PossibleState getPrevious()
-		{
-			return prev;
-		}
-		
-		// setters
-		public void setPrevious(PossibleState node)
-		{
-			prev = node;
-		}
-
-		public void setScore(double score) 
-		{
-			this.score = score;	
-		}
-	}
-	// end of inner class
     
 	// perceptron weights
     Map<K,Map<Integer,FeatureWeight>> weights;
@@ -135,7 +83,7 @@ public class ViterbiPerceptron<K>
     
     /**
      * 
-     * 
+     * Get true labels from words in turn
      * @param turn
      * @return
      */
@@ -150,7 +98,7 @@ public class ViterbiPerceptron<K>
 	}
 
 	/**
-	 * 
+	 * Get hypothesized labels for words in turn
 	 * @param turn
 	 * @return
 	 */
@@ -268,7 +216,7 @@ public class ViterbiPerceptron<K>
 	}
 	
 	/**
-	 * non-averaged or averaged deoending on
+	 * non-averaged or averaged depending on
 	 * whether training or testing
 	 * @param wordfeatures
 	 * @param label
@@ -337,8 +285,6 @@ public class ViterbiPerceptron<K>
 					FeatureWeight featureWeight = new FeatureWeight(1, 0.0, 0.0);
 					featurescores.put(truelabel, featureWeight);
 				}
-				
-				//weights.put(feature, featurescores);
 			}
 			else
 			{
@@ -369,10 +315,17 @@ public class ViterbiPerceptron<K>
 			if(!weightPointerForAveraging.containsKey(thisfeat))
 				weightPointerForAveraging.put(thisfeat, weights.get(feature).get(hypothesis));
 			
+			/*FeatureWeight featWeight = weightPointerForAveraging.get(thisfeat);
+    		featWeight.setAvgWeightNumerator(featWeight.getAvgWeightNumerator() + featWeight.getRawWeight());
+    		featWeight.setAvgWeightDenominator(featWeight.getAvgWeightDenominator() + 1);*/
+			
 			thisfeat = (String)feature + " " + truelabel;
 			if(!weightPointerForAveraging.containsKey(thisfeat))
 				weightPointerForAveraging.put(thisfeat, weights.get(feature).get(truelabel));
 			
+			/*featWeight = weightPointerForAveraging.get(thisfeat);
+    		featWeight.setAvgWeightNumerator(featWeight.getAvgWeightNumerator() + featWeight.getRawWeight());
+    		featWeight.setAvgWeightDenominator(featWeight.getAvgWeightDenominator() + 1);*/
 		}
 	}
 	
@@ -395,6 +348,7 @@ public class ViterbiPerceptron<K>
 		Collections.reverse(hypothesis);		
 		return hypothesis;
 	}
+	
 	
 	/**
      * return weights as string
