@@ -30,7 +30,9 @@ public class Network<I,O> {
 	
 	private static Map<Integer, Double> sigmoidTable;
 	
-	private static double maxExp = 6;
+	private static double maxExp = 6.0;
+	
+	private static double learning_rate = 0.1;
 	
 	// NETWORK PARAMS
 	int nHiddenLayers;
@@ -68,8 +70,6 @@ public class Network<I,O> {
     /** weights from last hidden layer to output layer */
     Map<Integer, Map<O, NNWeight<Integer, O>>> outputWeights;
     
-    Map<Integer, Double> precomputedSigmoid;
-    
 
     // constructor
     public Network(String configFile)
@@ -87,6 +87,11 @@ public class Network<I,O> {
      */
     private void initNet(String configFile)
     {
+    	nNodesPerHiddenLayer = new HashMap<Integer,Integer>();
+    	inputWeights = new HashMap<I, Map<Integer, NNWeight<I, Integer>>>();
+    	hiddenWeights = new HashMap<Integer, Map<Integer, Map<Integer, NNWeight<Integer, Integer>>>>();
+    	outputWeights = new HashMap<Integer, Map<O, NNWeight<Integer, O>>>();
+    	
     	// read config file
     	readConfigAndSetNetworkParams(configFile);
     	
@@ -165,10 +170,12 @@ public class Network<I,O> {
 			for(int i=0;i<hidden.getLength();i++)
 			{
 				Element layerElem = (Element)hidden.item(i);
+				System.out.println("Num nodes in hidden layer is: " + layerElem.getElementsByTagName("numNodes").item(0).getTextContent());
 				nNodesPerHiddenLayer.put(i+1, Integer.parseInt(layerElem.getElementsByTagName("numNodes").item(0).getTextContent()));
 			}
 			
 			Element output = (Element)dom.getElementsByTagName("output").item(0);
+			System.out.println("number of output numnodes: " + output.getElementsByTagName("numNodes").getLength());
 			nOutputNodes = Integer.parseInt(output.getElementsByTagName("numNodes").item(0).getTextContent());
 			
 			NodeList outputIds = output.getElementsByTagName("nodeId");
@@ -196,15 +203,17 @@ public class Network<I,O> {
     	sigmoidTable = new HashMap<Integer, Double>();
     	for(int i=0; i<sigmoidTableSize; i++)
     	{
-    		double exp = Math.exp((i/maxExp * 2 - 1)*6);
+    		double exp = Math.exp(((double)i/sigmoidTableSize * 2.0 - 1.0)*6.0);
+    		System.out.println("exp: " + exp);
+    		System.out.println("sigmoid: " + exp/(exp+1));
     		sigmoidTable.put(i, exp/(exp+1));
     	}
     	
     	// debug
-    	for(int i=0; i<sigmoidTableSize; i++)
+    	/*for(int i=0; i<sigmoidTableSize; i++)
     	{
     		System.out.println("key: " + i + "  value: " + sigmoidTable.get(i));
-    	}
+    	}*/
     	
     }
     
@@ -297,11 +306,11 @@ public class Network<I,O> {
     	// compute scores for all subsequent hidden layers
     	for(int i=2; i<=nHiddenLayers; i++)
     	{
-    		for(int to=0; to<nNodesPerHiddenLayer.get(i+1); to++)
+    		for(int to=0; to<nNodesPerHiddenLayer.get(i); to++)
     		{
     			double nodescore = 0.0;
     			if(hiddenScores.get(i).containsKey(to)) nodescore = hiddenScores.get(i).get(to).getScore();
-    			for(int from=0; from<nNodesPerHiddenLayer.get(i); from++)
+    			for(int from=0; from<nNodesPerHiddenLayer.get(i-1); from++)
     			{
     				nodescore += getSigmoid(hiddenScores.get(i-1).get(from).getScore()) * hiddenWeights.get(i-1).get(from).get(to).getWeight();
     			}
@@ -342,21 +351,17 @@ public class Network<I,O> {
     	/** handle output to last hidden layer separately*/
     	// for each entry in expected or actual output scores list
     	   // for each node in prev layer
-    	      // for each node in output layer
-    	          // compute error
+    	      // error = (error_on_prev_layer_node==null)?outputlayercomputederror:error_on_prev_layer_node; reset error_on_prev_layer_node
+    	      // for each node in present layer
     	          // error_on_prev_layer_node += learning_rate * error * dsigmoid(input_to_sigmoid) * weight_b/w_current_2_nodes
     	          // weight_b/w_current_2_nodes  += learning_rate * error * dsigmoid(input_to_sigmoid) * input_coming_in_to_output
     	   
     	
-    	/** handle everything else separately  */
-    	// for each node in nth hidden layer
-    	   // error = error_on_prev_layer_node; reset error_on_prev_layer_node
-    	   // for each node in n+1th hidden layer
-    	       // error_on_prev_layer_node += learning_rate * error * dsigmoid(input_to_sigmoid) * weight_b/w_current_2_nodes
-    	       // weight_b/w_current_2_nodes += learning_rate * error * dsigmoid(input_to_sigmoid) * input_coming_in_to_output
-    	
-    	
     	/** reset score lists after every backprop pass */
+    	inputScoresList.clear();
+    	hiddenScoresList.clear();
+    	expectedOutputScoresList.clear();
+    	actualOutputScoresList.clear();
     }
     
 }
