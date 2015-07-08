@@ -8,6 +8,8 @@ public class NNScore<T> {
 	
 	double score;
 	
+	double sigmoid;
+	
 	
 	// constructors
 	public NNScore(int layerIndex, T nodeIndex, double score)
@@ -47,6 +49,14 @@ public class NNScore<T> {
 
 	public void setScore(double score) {
 		this.score = score;
+	}
+	
+	public void setSigmoidScore(double sigmoid) {
+		this.sigmoid = sigmoid;
+	}
+	
+	public double getSigmoidScore() {
+		return this.sigmoid;
 	}
 
 	

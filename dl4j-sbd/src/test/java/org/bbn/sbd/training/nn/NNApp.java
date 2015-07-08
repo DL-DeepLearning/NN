@@ -21,8 +21,8 @@ public class NNApp {
             
   			double prevSER = 1000.0;
   			int window = 7;
-  			if(args.length>3)
-  				window = Integer.parseInt(args[3]);
+  			if(args.length>2)
+  				window = Integer.parseInt(args[2]);
   			
   			if(window !=5 && window != 7)
   			{
@@ -37,6 +37,13 @@ public class NNApp {
   			
   			for(int iter=0;iter<10;iter++)
   			{
+  				neuralnet.inputScoresList.clear();
+				neuralnet.hiddenScoresList.clear();
+				neuralnet.actualOutputScoresList.clear();
+				neuralnet.expectedOutputScoresList.clear();
+  				
+  				System.out.println("Iteration number: " + (iter+1));
+  				
   				/** training */
   	  			for(Turn training_turn : training_turns)
   	  			{
@@ -56,20 +63,24 @@ public class NNApp {
   	  	  					inputFeatures.put(wordFeature, featureScore);
   	  	  				}
   	  	  				
-  	  	  				if(trueLabel == 1)
-  	  	  				{
-  	  	  					NNScore<String> sbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "sbd", 1.0);
-  	  	  				    NNScore<String> nsbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "nsbd", 0.0);
-  	  	  					trueScores.put("sbd", sbdScore);
-  	  	  					trueScores.put("nsbd", nsbdScore);
-  	  	  				}
-  	  	  				else
-  	  	  				{
-  	  	  				    NNScore<String> sbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "sbd", 0.0);
-  		  				    NNScore<String> nsbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "nsbd", 1.0);
-  		  					trueScores.put("sbd", sbdScore);
-  		  					trueScores.put("nsbd", nsbdScore);
-  	  	  				}
+  	  	  			    if(trueLabel == 1)
+	  	  				{
+	  	  					NNScore<String> sbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "sbd", 1.0);
+	  	  					sbdScore.setSigmoidScore(1.0);
+	  	  				    NNScore<String> nsbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "nsbd", 0.0);
+	  	  					nsbdScore.setSigmoidScore(0.0);
+	  	  				    trueScores.put("sbd", sbdScore);
+	  	  					trueScores.put("nsbd", nsbdScore);
+	  	  				}
+	  	  				else
+	  	  				{
+	  	  				    NNScore<String> sbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "sbd", 0.0);
+	  	  				    sbdScore.setSigmoidScore(0.0);
+		  				    NNScore<String> nsbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "nsbd", 1.0);
+		  				    nsbdScore.setSigmoidScore(1.0);
+		  					trueScores.put("sbd", sbdScore);
+		  					trueScores.put("nsbd", nsbdScore);
+	  	  				}
   	  	  				
   	  	  				neuralnet.forwardPropagate(inputFeatures, trueScores);
   	  				}
@@ -101,14 +112,18 @@ public class NNApp {
   	  	  				if(trueLabel == 1)
   	  	  				{
   	  	  					NNScore<String> sbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "sbd", 1.0);
+  	  	  					sbdScore.setSigmoidScore(1.0);
   	  	  				    NNScore<String> nsbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "nsbd", 0.0);
-  	  	  					trueScores.put("sbd", sbdScore);
+  	  	  					nsbdScore.setSigmoidScore(0.0);
+  	  	  				    trueScores.put("sbd", sbdScore);
   	  	  					trueScores.put("nsbd", nsbdScore);
   	  	  				}
   	  	  				else
   	  	  				{
   	  	  				    NNScore<String> sbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "sbd", 0.0);
+  	  	  				    sbdScore.setSigmoidScore(0.0);
   		  				    NNScore<String> nsbdScore = new NNScore<String>(neuralnet.nHiddenLayers+1, "nsbd", 1.0);
+  		  				    nsbdScore.setSigmoidScore(1.0);
   		  					trueScores.put("sbd", sbdScore);
   		  					trueScores.put("nsbd", nsbdScore);
   	  	  				}
@@ -129,15 +144,15 @@ public class NNApp {
   	  				double bestscore = 0;
   	  				for(String key : actualOutputScores.keySet())
   	  				{
-  	  					if(actualOutputScores.get(key).getScore() > bestscore)
+  	  					if(actualOutputScores.get(key).getSigmoidScore() > bestscore)
   	  					{
-  	  						bestscore = actualOutputScores.get(key).getScore();
+  	  						bestscore = actualOutputScores.get(key).getSigmoidScore();
   	  						if(key.equals("sbd"))
   	  							bestlabel=1;
   	  						else bestlabel = -1;
   	  					}
   	  				}
-  	  				
+  	  			    //System.out.println("Predicted label: " + bestlabel + " Winning score: " + bestscore);
   	  				predictedlabels.add(bestlabel);
   	  			}
   	  			for(Map<String, NNScore<String>> expectedOutputScores : neuralnet.expectedOutputScoresList)
@@ -154,18 +169,18 @@ public class NNApp {
 	  						else bestlabel = -1;
 	  					}
 	  				}
-	  				
+	  				//System.out.println("True label: " + bestlabel + " Winning score: " + bestscore);
 	  				truelabels.add(bestlabel);
   	  			}
   	  			
   	  			// calculate SER
   	  			double SER = Score.score(predictedlabels, truelabels);
-  				if(SER > prevSER)
+  				/*if(SER > prevSER)
   				    {
   				    	System.out.println("Best SER = " + prevSER + " on iteration " + iter);
   				    	break;
   				    }
-  				prevSER = SER;
+  				prevSER = SER;*/
   			}
   			
   			

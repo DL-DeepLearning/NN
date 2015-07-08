@@ -45,23 +45,23 @@ public class Score {
 		if(tp+fp != 0)
 		{
 			precision = tp/(tp+fp);
-			System.out.println("Precision is: " + precision);
+			//System.out.println("Precision is: " + precision);
 		}	
-		else System.out.println("Precision is NaN");
+		//else System.out.println("Precision is NaN");
 		
 		if(tp+fn != 0)
 		{
 			recall = tp/(tp+fn);
-			System.out.println("Recall is: " + recall);
+			//System.out.println("Recall is: " + recall);
 		}
-		else System.out.println("Recall is NaN");
+		//else System.out.println("Recall is NaN");
 		
 		if(precision+recall != 0)
 		{
 			fscore = 2*precision*recall/(precision+recall);
-			System.out.println("F-measure is: " + fscore);
+			//System.out.println("F-measure is: " + fscore);
 		}	
-		else System.out.println("F-measure is NaN");
+		//else System.out.println("F-measure is NaN");
 		
 		if(tp+fn != 0)
 		{
@@ -72,10 +72,10 @@ public class Score {
 		}
 		else System.out.println("SER is NaN");
 		
-		System.out.println("TP: " + tp);
-		System.out.println("TN: " + tn);
-		System.out.println("FP: " + fp);
-		System.out.println("FN: " + fn);
+		//System.out.println("TP: " + tp);
+		//System.out.println("TN: " + tn);
+		//System.out.println("FP: " + fp);
+		//System.out.println("FN: " + fn);
 		
 		return ser;
 	}

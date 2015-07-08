@@ -7,8 +7,8 @@
 		</hidden>
 		<output>
 			<numNodes>2</numNodes>
-			<nodeId>sbd</nodeId>
-			<nodeId>nsbd</nodeId>
+			<nodeId>xor</nodeId>
+			<nodeId>nxor</nodeId>
 			<transfer>sigmoid</transfer>
 		</output>
 	</layers>

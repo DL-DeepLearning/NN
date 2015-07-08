@@ -87,6 +87,11 @@ public class Network<I,O> {
      */
     private void initNet(String configFile)
     {
+    	inputScoresList = new ArrayList<Map<I,NNScore<I>>>();
+    	hiddenScoresList = new ArrayList<Map<Integer, Map<Integer, NNScore<Integer>>>>();
+    	actualOutputScoresList = new ArrayList<Map<O, NNScore<O>>>();
+    	expectedOutputScoresList = new ArrayList<Map<O, NNScore<O>>>();
+    	
     	nNodesPerHiddenLayer = new HashMap<Integer,Integer>();
     	inputWeights = new HashMap<I, Map<Integer, NNWeight<I, Integer>>>();
     	hiddenWeights = new HashMap<Integer, Map<Integer, Map<Integer, NNWeight<Integer, Integer>>>>();
@@ -150,7 +155,12 @@ public class Network<I,O> {
     /** initial weights */
 	private double getRandomInitialWeight() 
     {
-		return 0.1+(0.7-0.1)*new Random().nextDouble();
+		return -0.7+(0.14)*new Random().nextDouble();
+		
+		// random gaussian weights
+		//Random fRandom = new Random();
+		
+		//return 0.0 + fRandom.nextGaussian() * 1.0;
 	}
 
 
@@ -175,9 +185,8 @@ public class Network<I,O> {
 			}
 			
 			Element output = (Element)dom.getElementsByTagName("output").item(0);
-			System.out.println("number of output numnodes: " + output.getElementsByTagName("numNodes").getLength());
 			nOutputNodes = Integer.parseInt(output.getElementsByTagName("numNodes").item(0).getTextContent());
-			
+			System.out.println("Number of output nodes: " + nOutputNodes);
 			NodeList outputIds = output.getElementsByTagName("nodeId");
 			for(int i=0;i<outputIds.getLength();i++)
 			{
@@ -204,8 +213,8 @@ public class Network<I,O> {
     	for(int i=0; i<sigmoidTableSize; i++)
     	{
     		double exp = Math.exp(((double)i/sigmoidTableSize * 2.0 - 1.0)*6.0);
-    		System.out.println("exp: " + exp);
-    		System.out.println("sigmoid: " + exp/(exp+1));
+    		//System.out.println("exp: " + exp);
+    		//System.out.println("sigmoid: " + exp/(exp+1));
     		sigmoidTable.put(i, exp/(exp+1));
     	}
     	
@@ -282,24 +291,28 @@ public class Network<I,O> {
         			}
         			
         			hiddenNodeToWeight.put(i, weight);
+        			//System.out.println("Setting weight between input feature " + inputFeature + " and hidden layer node " + i + ", weight value = " + weight.getWeight());
         			inputWeights.put(inputFeature, hiddenNodeToWeight);
         		}
     		}
-    		
     	}
     	
     	// compute scores for first hidden layer
     	for(int i=0; i<nNodesPerHiddenLayer.get(1); i++)
     	{
     		double nodescore = 0.0;
-    		if(hiddenScores.get(1).containsKey(i)) nodescore = hiddenScores.get(1).get(i).getScore();
+    		//if(hiddenScores.get(1).containsKey(i)) nodescore = hiddenScores.get(1).get(i).getScore();
     		for(I inputFeature : inputFeatures.keySet())
         	{
         		nodescore += inputFeatures.get(inputFeature).getScore() * inputWeights.get(inputFeature).get(i).getWeight();
         	}
     		
     		if(getSigmoid(nodescore) > 0)
-    		  hiddenScores.get(1).get(i).setScore(nodescore);
+    		{
+    			//System.out.println("Setting score: " + nodescore);
+      		    hiddenScores.get(1).get(i).setScore(nodescore);
+    		}
+    		  
     	}
     	
     	
@@ -309,13 +322,17 @@ public class Network<I,O> {
     		for(int to=0; to<nNodesPerHiddenLayer.get(i); to++)
     		{
     			double nodescore = 0.0;
-    			if(hiddenScores.get(i).containsKey(to)) nodescore = hiddenScores.get(i).get(to).getScore();
+    			//if(hiddenScores.get(i).containsKey(to)) nodescore = hiddenScores.get(i).get(to).getScore();
     			for(int from=0; from<nNodesPerHiddenLayer.get(i-1); from++)
     			{
     				nodescore += getSigmoid(hiddenScores.get(i-1).get(from).getScore()) * hiddenWeights.get(i-1).get(from).get(to).getWeight();
     			}
     			if(getSigmoid(nodescore) > 0)
-    			  hiddenScores.get(i).get(to).setScore(nodescore);
+    			{
+    				//System.out.println("Setting score: " + nodescore);
+    				hiddenScores.get(i).get(to).setScore(nodescore);
+    			}
+    			  
     		}
     	}
     	
@@ -324,14 +341,19 @@ public class Network<I,O> {
     	for(int i=0; i<nOutputNodes; i++)
     	{
     		double nodescore = 0.0;
-    		if(actualOutputScores.containsKey(outputNodeIds.get(i))) nodescore = actualOutputScores.get(outputNodeIds.get(i)).getScore();
+    		//if(actualOutputScores.containsKey(outputNodeIds.get(i))) nodescore = actualOutputScores.get(outputNodeIds.get(i)).getScore();
     		for(int from=0; from<nNodesPerHiddenLayer.get(nHiddenLayers); from++)
     		{
     			nodescore += getSigmoid(hiddenScores.get(nHiddenLayers).get(from).getScore()) * outputWeights.get(from).get(outputNodeIds.get(i)).getWeight();
     		}
     		
     		if(getSigmoid(nodescore) > 0)
+    		{
+    			//System.out.println("Setting score: " + nodescore);
     			actualOutputScores.get(outputNodeIds.get(i)).setScore(nodescore);
+    			actualOutputScores.get(outputNodeIds.get(i)).setSigmoidScore(getSigmoid(nodescore));
+    		}
+    			
     	}
     	
     	inputScoresList.add(inputFeatures);
@@ -355,7 +377,139 @@ public class Network<I,O> {
     	      // for each node in present layer
     	          // error_on_prev_layer_node += learning_rate * error * dsigmoid(input_to_sigmoid) * weight_b/w_current_2_nodes
     	          // weight_b/w_current_2_nodes  += learning_rate * error * dsigmoid(input_to_sigmoid) * input_coming_in_to_output
-    	   
+    	
+    	double error_on_prev_layer;
+    	for(int index=0; index < actualOutputScoresList.size(); index++)
+    	{
+    		Map<O, NNScore<O>> actualOutputScores = actualOutputScoresList.get(index);
+    		Map<O, NNScore<O>> expectedOutputScores = expectedOutputScoresList.get(index);
+    		Map<I,NNScore<I>> inputScores = inputScoresList.get(index);
+    		Map<Integer, Map<Integer, NNScore<Integer>>> hiddenScores = hiddenScoresList.get(index);
+    		
+    		Map<Integer, Map<Integer, Double>> errors = new HashMap<Integer, Map<Integer, Double>>();
+    		
+    		int actualOutputIndex = getMaxIndex(actualOutputScores);
+			int expectedOutputIndex = getMaxIndex(expectedOutputScores);
+			if(actualOutputIndex == expectedOutputIndex && nOutputNodes > 1)
+			{
+				System.out.println(">1 output nodes");
+				//System.out.println("Actual: " + outputNodeIds.get(actualOutputIndex) + " Expected: " + outputNodeIds.get(expectedOutputIndex) + " No error");
+				continue;
+			}
+			else
+			{
+				//System.out.println("Actual: " + outputNodeIds.get(actualOutputIndex) + " Expected: " + outputNodeIds.get(expectedOutputIndex) + " Error! Proceeding with weight update");
+			}
+			
+			/*if(nOutputNodes == 1)
+			{
+				if(expectedOutputScores.get(outputNodeIds.get(expectedOutputIndex)).getSigmoidScore()==1.0 && actualOutputScores.get(outputNodeIds.get(actualOutputIndex)).getSigmoidScore()>=0.5)
+					continue;
+				if(expectedOutputScores.get(outputNodeIds.get(expectedOutputIndex)).getSigmoidScore()==-1.0 && actualOutputScores.get(outputNodeIds.get(actualOutputIndex)).getSigmoidScore()<0.5)
+					continue;
+			}*/
+
+			
+    		// output to final hidden layer
+    		for(int from=0; from<nNodesPerHiddenLayer.get(nHiddenLayers); from++)
+    		{
+    			double error_to_be_propagated = 0.0;
+
+    			for(int to=0; to<nOutputNodes; to++)
+    			{
+                    double toNodeScore = actualOutputScores.get(outputNodeIds.get(to)).getScore();
+    				double weight = outputWeights.get(from).get(outputNodeIds.get(to)).getWeight();
+    				//double error = expectedOutputScores.get(outputNodeIds.get(to)).getScore() - getSigmoid(toNodeScore);
+    				
+    				// mean squared error: dc/d(activation) = (hyp - actual)
+    				double error = 0.0;
+    				
+    				/*
+    				 *  if there is more than one output node, the error associated with the correct node is -2,
+    				 *  and error associated with all other nodes is +2. 
+    				 */
+    				if(nOutputNodes > 1)
+    				{
+    					if(to == expectedOutputIndex)
+        					error = -(expectedOutputScores.get(outputNodeIds.get(to)).getSigmoidScore()-actualOutputScores.get(outputNodeIds.get(to)).getSigmoidScore());
+        				else error = -(expectedOutputScores.get(outputNodeIds.get(to)).getSigmoidScore()-actualOutputScores.get(outputNodeIds.get(to)).getSigmoidScore());
+    				}
+    				/*
+    				 * if there is only one output node
+    				 */
+    				/*else
+    				{
+    					if(expectedOutputScores.get(outputNodeIds.get(to)).getSigmoidScore()==1.0 && actualOutputScores.get(outputNodeIds.get(to)).getSigmoidScore()<0.5)
+    						error = -1;
+    					else error = 1;
+    				}*/
+    				
+    				
+    				error_to_be_propagated += learning_rate * error * getSigmoid(toNodeScore) * (1- getSigmoid(toNodeScore)) * weight;
+    				// weight update
+    				outputWeights.get(from).get(outputNodeIds.get(to)).setWeight(weight += (learning_rate * error * getSigmoid(toNodeScore) * (1- getSigmoid(toNodeScore)) * toNodeScore));
+    			}
+    			
+    			if(!errors.containsKey(nHiddenLayers))
+    				errors.put(nHiddenLayers, new HashMap<Integer,Double>());
+				errors.get(nHiddenLayers).put(from, error_to_be_propagated);
+    		}
+    		
+    		// between hidden layers
+    		int currLayer = nHiddenLayers;
+    		while(currLayer > 1)
+    		{
+    			for(int from=0; from<nNodesPerHiddenLayer.get(currLayer-1); from++)
+        		{
+        			double error_to_be_propagated = 0.0;
+        			for(int to=0; to<nNodesPerHiddenLayer.get(currLayer); to++)
+        			{
+        				double toNodeScore = hiddenScores.get(currLayer).get(to).getScore();
+        				double weight = hiddenWeights.get(currLayer).get(from).get(to).getWeight();
+        				double error = errors.get(currLayer).get(to);
+        				error_to_be_propagated += learning_rate * error * getSigmoid(toNodeScore) * (1- getSigmoid(toNodeScore)) * weight;
+        				// weight update
+        				hiddenWeights.get(currLayer).get(from).get(to).setWeight(weight += (learning_rate * error * getSigmoid(toNodeScore) * (1- getSigmoid(toNodeScore)) * toNodeScore));
+        			}
+        			
+        			if(!errors.containsKey(currLayer-1))
+        				errors.put(currLayer-1, new HashMap<Integer,Double>());
+    				errors.get(currLayer-1).put(from, error_to_be_propagated);
+        		}
+    			currLayer--;
+    		}
+    		
+    		// debug
+    		/*System.out.println("errors map entries");
+    		for(int layer: errors.keySet())
+    		{
+    			System.out.println("Layer: " + layer);
+    			for(int i=0; i< nNodesPerHiddenLayer.get(layer); i++)
+    			{
+    				for(Integer node : errors.get(layer).keySet())
+    				{
+    					System.out.println("Node: " + node + "  Error: " + errors.get(layer).get(node));
+    				}
+    			}
+    			
+    		}*/
+    		
+    		// hidden to input layer
+    		for(I inputFeature : inputScores.keySet())
+    		{
+    			for(int to=0;to<nNodesPerHiddenLayer.get(1);to++)
+    			{
+    				double toNodeScore = hiddenScores.get(1).get(to).getScore();
+    				double weight = inputWeights.get(inputFeature).get(to).getWeight();
+    				//System.out.println("to: " + to);
+    				double error = errors.get(1).get(to);
+
+    				// weight update
+    				inputWeights.get(inputFeature).get(to).setWeight(weight += (learning_rate * error * getSigmoid(toNodeScore) * (1- getSigmoid(toNodeScore)) * toNodeScore));
+    			}
+    		}
+    		
+    	}
     	
     	/** reset score lists after every backprop pass */
     	inputScoresList.clear();
@@ -363,5 +517,21 @@ public class Network<I,O> {
     	expectedOutputScoresList.clear();
     	actualOutputScoresList.clear();
     }
+
+
+	private int getMaxIndex(Map<O, NNScore<O>> outputScores) {
+		double max = 0.0;
+		int maxIndex = 0;
+		for(int to=0; to<nOutputNodes; to++)
+		{
+			if(outputScores.get(outputNodeIds.get(to)).getSigmoidScore() >= max)
+			{
+				max = outputScores.get(outputNodeIds.get(to)).getSigmoidScore();
+				maxIndex = to;
+			}
+		}
+		
+		return maxIndex;
+	}
     
 }

@@ -8,7 +8,8 @@ public class TestReadConfig {
 	{
 		try
 		{
-			Network<String,String> nn = new Network<String,String>("/nfs/raid62/u15/research/SBD/dl4j/deeplearning4j/dl4j-sbd/src/main/resources/org/bbn/sbd/training/nn/NNConfig.xml");
+			Network<String,String> nn = new Network<String,String>("/nfs/raid62/u15/research/SBD/dl4j/deeplearning4j/dl4j-sbd/src/main/resources/org/bbn"
+					+ "/sbd/training/nn/NNConfig.xml");
 			
 			System.out.println("NETWORK PARAMS: ");
 			System.out.println("num hidden layers: " + nn.nHiddenLayers);
