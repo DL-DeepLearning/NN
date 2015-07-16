@@ -392,15 +392,9 @@ public class Network<I,O> {
 			int expectedOutputIndex = getMaxIndex(expectedOutputScores);
 			if(actualOutputIndex == expectedOutputIndex && nOutputNodes > 1)
 			{
-				System.out.println(">1 output nodes");
 				//System.out.println("Actual: " + outputNodeIds.get(actualOutputIndex) + " Expected: " + outputNodeIds.get(expectedOutputIndex) + " No error");
 				continue;
 			}
-			else
-			{
-				//System.out.println("Actual: " + outputNodeIds.get(actualOutputIndex) + " Expected: " + outputNodeIds.get(expectedOutputIndex) + " Error! Proceeding with weight update");
-			}
-			
 			/*if(nOutputNodes == 1)
 			{
 				if(expectedOutputScores.get(outputNodeIds.get(expectedOutputIndex)).getSigmoidScore()==1.0 && actualOutputScores.get(outputNodeIds.get(actualOutputIndex)).getSigmoidScore()>=0.5)
